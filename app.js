@@ -12,12 +12,19 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
 
-//mongoose.connect("mongodb://localhost:27017/todolistDB", {useNewUrlParser: true});
+// Database Connection: The application connects to a MongoDB database named todolistDB using Mongoose
+// Establishes a connection to the MongoDB server (connect to a local MongoDB instance)
+// running locally on the developer's machine, on the default port (27017) 
+// Common during development as it allows developers to work with a local database without needing to connect to a remote server.
+// Connection syntax: mongoose.connect("mongodb://localhost:27017/<databaseName>", {useNewUrlParser: true});
+mongoose.connect("mongodb://localhost:27017/todolistDB", {useNewUrlParser: true});
 
+// The application defines a schema for items in the todo list:
 const itemsSchema = {
   name: String
 };
 
+// Then, it creates a Mongoose model 'Item' based on this schema, represents a collection named 'items'
 const Item = mongoose.model("Item", itemsSchema);
 
 
@@ -33,6 +40,7 @@ const item3 = new Item({
   name: "<-- Hit this to delete an item."
 });
 
+// Creates default items for the todo list:
 const defaultItems = [item1, item2, item3];
 
 const listSchema = {
@@ -48,6 +56,7 @@ app.get("/", function(req, res) {
   Item.find({}, function(err, foundItems){
 
     if (foundItems.length === 0) {
+      // These default items are inserted into the 'items' collection in the MongoDB database when the application starts if the collection is empty:
       Item.insertMany(defaultItems, function(err){
         if (err) {
           console.log(err);
@@ -63,6 +72,10 @@ app.get("/", function(req, res) {
 
 });
 
+
+// Routes:
+
+// The routes handle operations related to todo list items such as adding, deleting, and displaying items from the database.
 app.get("/:customListName", function(req, res){
   const customListName = _.capitalize(req.params.customListName);
 
